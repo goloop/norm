@@ -43,6 +43,15 @@ func MAC(s string) (string, bool)
 func IBAN(s string) (string, bool)
 func BankCard(s string, kinds ...is.CardKind) (string, bool)
 func E164(s string) (string, bool)
+func IP(s string) (string, bool)
+func IPv4(s string) (string, bool)
+func IPv6(s string) (string, bool)
+func Domain(s string) (string, bool)
+func Hostname(s string) (string, bool)
+func Base64(s string) (string, bool)
+func Base64URL(s string) (string, bool)
+func JWT(s string) (string, bool)
+func HexColor(s string) (string, bool)
 func Hex(s string) (string, bool)
 func MD5(s string) (string, bool)
 func SHA1(s string) (string, bool)
@@ -68,6 +77,13 @@ func SHA512(s string) (string, bool)
   справжньої чи бажаної картки.
 - **E164**: прибрати пробіли, дефіси, дужки й крапки. Без магії: національний
   номер без провідного `+` лишається невалідним.
+- **IP / IPv4 / IPv6**: розібрати й повернути канонічний текст через `net/netip`
+  (IPv6 - lowercase і стиснений). IPv4/IPv6 ще й вимагають родину.
+- **Domain / Hostname**: trim і lowercase (регістро-незалежні). Без IDN/punycode.
+- **Base64 / Base64URL**: прибрати пробіли (base64 часто розбито на рядки);
+  padding і алфавіт збережено.
+- **JWT**: лише trim і scrub (JWT не містить пробілів).
+- **HexColor**: trim і lowercase; відсутній `#` не вигадується.
 - **Hex / MD5 / SHA1 / SHA256 / SHA512**: trim і lowercase (канонічна форма hex-
   дайджесту).
 
@@ -82,7 +98,8 @@ const (
 	Punct                    // Unicode P
 	Symbols                  // Unicode S
 	Letters                  // Unicode L
-	Digits                   // Unicode Nd
+	Digits                   // Unicode Nd (як is.Digit)
+	Numbers                  // Unicode N (як числова половина is.Alnum)
 )
 
 func Trim(s string, class Class) string      // прибрати клас з обох кінців
@@ -103,12 +120,22 @@ func Upper(s string) string                  // Unicode верхній регі�
 `norm` дзеркалить **форматні** предикати `is` (Email, URL, UUID, ...), де
 «нормалізувати» має єдине безпечне значення: дати канонічну форму й перевірити.
 
-Він свідомо **не** дзеркалить **властивісні** предикати (`is.Alpha`, `is.Digit`,
-`is.Space`, ...). `norm.Alpha` натякав би на канонічну форму, а насправді
-прибирав би не-літери - це втратна фільтрація. Замість цього - toolkit:
-`norm.Keep(s, norm.Letters)` для випадку «лише літери», або `norm.Remove` /
-`norm.Trim` для решти. Регістрові предикати відповідають простим перетворенням
-`norm.Lower` і `norm.Upper`.
+Для **character-class** предикатів він дає чесні втратні відповідники з ім'ям
+`*Only`, що повертають простий рядок - ім'я сигналізує фільтрацію, а не
+канонізацію:
+
+```go
+func AlphaOnly(s string) string  // is.Alpha  -> лишити літери
+func AlnumOnly(s string) string  // is.Alnum  -> лишити літери й цифри
+func DigitsOnly(s string) string // is.Digit  -> лишити десяткові цифри
+```
+
+Він свідомо **не** дає канонізаційний `norm.Alpha`/`norm.Digit` (оманливе ім'я
+для втратного фільтра) і **не** дзеркалить **граматичні, політикові чи
+ідентичнісні** предикати (`is.Numeric`, `is.Title`, `is.Nickname`,
+`is.VariableName`, `is.SelectorName`), де фільтрація змінила б сенс чи
+ідентичність. Регістрові предикати відповідають простим `norm.Lower` і
+`norm.Upper`. Для довільних груп - `norm.Keep` / `norm.Remove`.
 
 ## Межі
 

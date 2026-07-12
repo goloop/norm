@@ -34,6 +34,11 @@ is returned even when invalid, so a UI can suggest "did you mean X?".
 | `IBAN` | remove spaces, uppercase, strict checksum |
 | `BankCard` | remove spaces and dashes, Luhn (and optional kinds) |
 | `E164` | remove spaces, dashes, parentheses, dots (no country code invented) |
+| `IP`, `IPv4`, `IPv6` | canonical form (compressed, lowercase IPv6) |
+| `Domain`, `Hostname` | trim, lowercase |
+| `Base64`, `Base64URL` | remove whitespace (unwrap) |
+| `JWT` | trim, scrub |
+| `HexColor` | trim, lowercase (no `#` invented) |
 | `Hex`, `MD5`, `SHA1`, `SHA256`, `SHA512` | trim, lowercase |
 
 Every value is first scrubbed of control and invisible characters (a zero-width
@@ -55,11 +60,23 @@ norm.Lower(s), norm.Upper(s)            // Unicode case
 ```
 
 Groups: `Spaces`, `Controls`, `Invisible` (zero-width / format characters, BOM,
-soft hyphen, variation selectors), `Punct`, `Symbols`, `Letters`, `Digits`.
+soft hyphen, variation selectors), `Punct`, `Symbols`, `Letters`, `Digits`
+(decimal), `Numbers` (all Unicode numbers).
 
-`Keep` and `Remove` are the honest replacement for lossy property mirrors: there
-is deliberately no `norm.Alpha` or `norm.Digit`, because "normalizing" to those
-is really filtering, so you write `norm.Keep(s, norm.Letters)` instead.
+For the character-class predicates of `is`, the honest lossy counterparts are
+named `*Only` and return a plain string (not `(string, bool)`), so the name
+signals filtering rather than canonicalization:
+
+```go
+norm.AlphaOnly("a1-b2")   // "ab"
+norm.AlnumOnly("a1-b2!")  // "a1b2"
+norm.DigitsOnly("+1 415") // "1415"
+```
+
+There is deliberately no `norm.Alpha`/`norm.Digit` (a name implying a canonical
+form for a lossy filter), and no mirror for grammar or policy predicates
+(`Numeric`, `Title`, `Nickname`, `VariableName`, `SelectorName`), where
+filtering would change meaning or identity.
 
 ## Documentation
 

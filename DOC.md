@@ -44,6 +44,15 @@ func MAC(s string) (string, bool)
 func IBAN(s string) (string, bool)
 func BankCard(s string, kinds ...is.CardKind) (string, bool)
 func E164(s string) (string, bool)
+func IP(s string) (string, bool)
+func IPv4(s string) (string, bool)
+func IPv6(s string) (string, bool)
+func Domain(s string) (string, bool)
+func Hostname(s string) (string, bool)
+func Base64(s string) (string, bool)
+func Base64URL(s string) (string, bool)
+func JWT(s string) (string, bool)
+func HexColor(s string) (string, bool)
 func Hex(s string) (string, bool)
 func MD5(s string) (string, bool)
 func SHA1(s string) (string, bool)
@@ -71,6 +80,14 @@ func SHA512(s string) (string, bool)
   a real or intended card.
 - **E164**: remove spaces, dashes, parentheses and dots. Non-magical: a national
   number without a leading `+` stays invalid.
+- **IP / IPv4 / IPv6**: parse and return the canonical text via `net/netip`
+  (IPv6 is lowercased and compressed). IPv4/IPv6 also enforce the family.
+- **Domain / Hostname**: trim and lowercase (case-insensitive). No IDN/punycode
+  conversion.
+- **Base64 / Base64URL**: remove whitespace (base64 is often line-wrapped);
+  padding and the alphabet are preserved.
+- **JWT**: trim and scrub only (a JWT carries no whitespace).
+- **HexColor**: trim and lowercase; a missing `#` is not invented.
 - **Hex / MD5 / SHA1 / SHA256 / SHA512**: trim and lowercase (the canonical form
   of a hex digest).
 
@@ -85,7 +102,8 @@ const (
 	Punct                    // Unicode P
 	Symbols                  // Unicode S
 	Letters                  // Unicode L
-	Digits                   // Unicode Nd
+	Digits                   // Unicode Nd (matches is.Digit)
+	Numbers                  // Unicode N (matches the numeric half of is.Alnum)
 )
 
 func Trim(s string, class Class) string      // remove class from both ends
@@ -106,12 +124,22 @@ A zero `Class` is a no-op for `Trim` and `Remove`.
 `norm` mirrors the **format** predicates of `is` (Email, URL, UUID, ...), where
 "normalize" has a single, safe meaning: produce the canonical form and validate.
 
-It deliberately does **not** mirror the **property** predicates (`is.Alpha`,
-`is.Digit`, `is.Space`, ...). A `norm.Alpha` would suggest a canonical form but
-would actually remove non-letters, which is lossy filtering. Use the toolkit
-instead: `norm.Keep(s, norm.Letters)` for the "letters only" case, or
-`norm.Remove` / `norm.Trim` for the rest. The case predicates map to the plain
-transforms `norm.Lower` and `norm.Upper`.
+For the **character-class** predicates it offers honest, lossy counterparts
+named `*Only`, returning a plain string so the name signals filtering rather
+than canonicalization:
+
+```go
+func AlphaOnly(s string) string  // is.Alpha  -> keep letters
+func AlnumOnly(s string) string  // is.Alnum  -> keep letters and digits
+func DigitsOnly(s string) string // is.Digit  -> keep decimal digits
+```
+
+It deliberately does **not** provide a canonicalizing `norm.Alpha`/`norm.Digit`
+(a misleading name for a lossy filter), and does **not** mirror **grammar,
+policy or identity** predicates (`is.Numeric`, `is.Title`, `is.Nickname`,
+`is.VariableName`, `is.SelectorName`), where filtering would change meaning or
+identity. The case predicates map to the plain transforms `norm.Lower` and
+`norm.Upper`. For arbitrary groups use `norm.Keep` / `norm.Remove`.
 
 ## Scope
 

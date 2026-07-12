@@ -34,6 +34,11 @@ go get github.com/goloop/norm
 | `IBAN` | прибрати пробіли, uppercase, строга контрольна сума |
 | `BankCard` | прибрати пробіли й дефіси, Luhn (і опційні види) |
 | `E164` | прибрати пробіли, дефіси, дужки, крапки (код країни не вигадується) |
+| `IP`, `IPv4`, `IPv6` | канонічна форма (стиснений, lowercase IPv6) |
+| `Domain`, `Hostname` | trim, lowercase |
+| `Base64`, `Base64URL` | прибрати пробіли (розгорнути) |
+| `JWT` | trim, scrub |
+| `HexColor` | trim, lowercase (`#` не вигадується) |
 | `Hex`, `MD5`, `SHA1`, `SHA256`, `SHA512` | trim, lowercase |
 
 Кожне значення спершу очищається від керівних і невидимих символів (zero-width
@@ -55,11 +60,23 @@ norm.Lower(s), norm.Upper(s)            // Unicode-регістр
 ```
 
 Групи: `Spaces`, `Controls`, `Invisible` (zero-width / формат-символи, BOM,
-м'який дефіс, variation selectors), `Punct`, `Symbols`, `Letters`, `Digits`.
+м'який дефіс, variation selectors), `Punct`, `Symbols`, `Letters`, `Digits`
+(десяткові), `Numbers` (усі Unicode-числа).
 
-`Keep` і `Remove` - чесна заміна втратних property-дзеркал: свідомо немає
-`norm.Alpha` чи `norm.Digit`, бо «нормалізація» до них - насправді фільтрація,
-тож пишемо `norm.Keep(s, norm.Letters)`.
+Для character-class предикатів `is` чесні втратні відповідники названо `*Only`
+і повертають простий рядок (не `(string, bool)`), щоб ім'я сигналізувало
+фільтрацію, а не канонізацію:
+
+```go
+norm.AlphaOnly("a1-b2")   // "ab"
+norm.AlnumOnly("a1-b2!")  // "a1b2"
+norm.DigitsOnly("+1 415") // "1415"
+```
+
+Свідомо немає `norm.Alpha`/`norm.Digit` (ім'я, що натякало б на канонічну форму
+для втратного фільтра), і немає дзеркал для граматичних чи політикових
+предикатів (`Numeric`, `Title`, `Nickname`, `VariableName`, `SelectorName`), де
+фільтрація змінила б сенс чи ідентичність.
 
 ## Документація
 
