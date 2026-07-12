@@ -33,8 +33,13 @@ const (
 	// Letters are Unicode letters (category L).
 	Letters
 
-	// Digits are Unicode decimal digits (category Nd).
+	// Digits are Unicode decimal digits (category Nd), matching is.Digit.
 	Digits
+
+	// Numbers are all Unicode numbers (category N: decimal digits, letter
+	// numbers such as Roman numerals, and other numerics), matching the numeric
+	// half of is.Alnum.
+	Numbers
 )
 
 // contains reports whether r belongs to any group selected by c.
@@ -53,6 +58,8 @@ func (c Class) contains(r rune) bool {
 	case c&Letters != 0 && unicode.IsLetter(r):
 		return true
 	case c&Digits != 0 && unicode.IsDigit(r):
+		return true
+	case c&Numbers != 0 && unicode.IsNumber(r):
 		return true
 	}
 	return false
