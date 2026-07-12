@@ -30,3 +30,11 @@ func HexColor(s string) (string, bool) {
 	v := Lower(scrub(s))
 	return v, is.HexColor(v)
 }
+
+// RGBColor normalizes a CSS rgb(...) color by lowercasing the "rgb" keyword (the
+// numbers and separators are unaffected) and reports whether the result is
+// valid.
+func RGBColor(s string) (string, bool) {
+	v := Lower(scrub(s))
+	return v, is.RGBColor(v)
+}
