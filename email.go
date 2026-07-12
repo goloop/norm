@@ -1,6 +1,8 @@
 package norm
 
 import (
+	"strings"
+
 	"github.com/goloop/is/v2"
 )
 
@@ -22,4 +24,18 @@ func Email(s string) (string, bool) {
 	}
 	v := lowerDomain(Remove(s, Spaces))
 	return v, is.Email(v)
+}
+
+// EmailFold is Email with the whole address lower-cased, for using an email as
+// a case-insensitive identity: a login key, a uniqueness constraint or a
+// deduplication key. Email preserves the local part's case because it is
+// technically case-sensitive; EmailFold folds it too, matching how identity
+// systems and mail providers treat addresses in practice, so "Boss@Acme.io"
+// and "boss@acme.io" compare and store as the same key.
+//
+// Use Email when exact deliverability matters and EmailFold when the address is
+// an identifier you look up or compare.
+func EmailFold(s string) (string, bool) {
+	v, ok := Email(s)
+	return strings.ToLower(v), ok
 }

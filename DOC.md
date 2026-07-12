@@ -38,6 +38,7 @@ only when the milder result is invalid.
 
 ```go
 func Email(s string) (string, bool)
+func EmailFold(s string) (string, bool) // Email, fully lower-cased (identity key)
 func URL(s string) (string, bool)
 func UUID(s string) (string, bool)
 func MAC(s string) (string, bool)
@@ -72,6 +73,10 @@ func SHA512(s string) (string, bool)
   the local part (domains are case-insensitive, local parts technically are
   not); if still invalid, remove internal whitespace. No IDN/punycode
   conversion is performed.
+- **EmailFold**: `Email` with the whole address lower-cased. Use it when the
+  address is an identity - a login key, a uniqueness constraint, a dedup key -
+  so `Boss@Acme.io` and `boss@acme.io` fold to the same value. Use `Email` when
+  exact deliverability matters.
 - **URL**: trim; lowercase the scheme and host only. The path, query and
   fragment are case-sensitive and untouched. A missing scheme is never invented,
   so `example.com` stays invalid.
@@ -124,13 +129,21 @@ func TrimLeft(s string, class Class) string
 func TrimRight(s string, class Class) string
 func Remove(s string, class Class) string    // remove class everywhere
 func Keep(s string, class Class) string      // keep only class (inverse of Remove)
-func CollapseSpace(s string) string          // internal whitespace runs -> one space
+func CollapseSpace(s string) string          // whitespace runs -> one space, trims ends
+func Clean(s string) string                  // remove invisible+control chars, collapse space, trim
 func Lower(s string) string                  // Unicode lower case
 func Upper(s string) string                  // Unicode upper case
 ```
 
 Combine groups with `|`, for example `norm.Remove(s, norm.Controls|norm.Invisible)`.
 A zero `Class` is a no-op for `Trim` and `Remove`.
+
+`Clean` is the one-call cleanup for a free-text form field (a name, title or
+comment): it strips invisible and non-space control characters, collapses every
+whitespace run (spaces, tabs, newlines) to a single space, and trims the ends,
+so a pasted value cannot carry zero-width bytes, hidden line breaks or ragged
+spacing into storage. It is `CollapseSpace` composed with the invisible/control
+scrub.
 
 ## Symmetry with is
 

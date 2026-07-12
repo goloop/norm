@@ -153,6 +153,16 @@ func CollapseSpace(s string) string {
 	return b.String()
 }
 
+// Clean returns s as safe, single-line display text: it removes invisible and
+// non-space control characters, then collapses every run of whitespace (spaces,
+// tabs and newlines) to a single space and trims the ends. It is the common
+// one-call cleanup for a free-text form field (a name, title or comment) before
+// it is stored or shown, so a pasted value cannot smuggle zero-width or control
+// bytes, ragged whitespace or hidden line breaks.
+func Clean(s string) string {
+	return CollapseSpace(scrub(s))
+}
+
 // scrub is the shared entry cleaning for the typed normalizers. It removes
 // zero-width/format characters and non-whitespace control characters
 // everywhere (they are never valid inside these formats), and trims surrounding

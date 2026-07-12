@@ -68,3 +68,15 @@ func TestInvisibleClassCoverage(t *testing.T) {
 		t.Fatal("false positive in isInvisible")
 	}
 }
+
+func TestClean(t *testing.T) {
+	// zero-width space (U+200B) + tab + collapsing + trim + a newline.
+	in := "  Al​ice\tBoss \n(dev) "
+	got := Clean(in)
+	if got != "Alice Boss (dev)" {
+		t.Fatalf("Clean = %q, want %q", got, "Alice Boss (dev)")
+	}
+	if Clean("   ") != "" {
+		t.Errorf("Clean(all spaces) should be empty")
+	}
+}

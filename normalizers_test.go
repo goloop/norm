@@ -136,3 +136,24 @@ func TestUUIDUnmatchedBrace(t *testing.T) {
 		t.Fatal("unmatched trailing brace accepted")
 	}
 }
+
+func TestEmailFold(t *testing.T) {
+	cases := map[string]string{
+		"Boss@Acme.IO":      "boss@acme.io",
+		"  User@Sub.Ex.io ": "user@sub.ex.io",
+	}
+	for in, want := range cases {
+		got, ok := EmailFold(in)
+		if !ok || got != want {
+			t.Errorf("EmailFold(%q) = %q,%v; want %q,true", in, got, ok, want)
+		}
+	}
+	a, _ := EmailFold("Boss@Acme.io")
+	b, _ := EmailFold("boss@acme.io")
+	if a != b {
+		t.Errorf("case variants did not fold equal: %q vs %q", a, b)
+	}
+	if _, ok := EmailFold("nope"); ok {
+		t.Error("EmailFold accepted an invalid address")
+	}
+}

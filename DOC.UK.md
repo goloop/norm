@@ -37,6 +37,7 @@ false, щоб можна було підказати варіант.
 
 ```go
 func Email(s string) (string, bool)
+func EmailFold(s string) (string, bool) // Email, повністю в нижньому регістрі (ключ-ідентичність)
 func URL(s string) (string, bool)
 func UUID(s string) (string, bool)
 func MAC(s string) (string, bool)
@@ -119,7 +120,8 @@ func TrimLeft(s string, class Class) string
 func TrimRight(s string, class Class) string
 func Remove(s string, class Class) string    // прибрати клас всюди
 func Keep(s string, class Class) string      // лишити тільки клас (інверсія Remove)
-func CollapseSpace(s string) string          // серії пробілів -> один пробіл
+func CollapseSpace(s string) string          // серії пробілів -> один, тримить краї
+func Clean(s string) string                  // прибрати невидимі+контрол, стиснути пробіли, тримити
 func Lower(s string) string                  // Unicode нижній регістр
 func Upper(s string) string                  // Unicode верхній регістр
 ```
