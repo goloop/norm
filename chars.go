@@ -153,9 +153,18 @@ func CollapseSpace(s string) string {
 	return b.String()
 }
 
-// scrub is the shared entry cleaning for the typed normalizers: it removes
-// control and invisible characters (never valid inside these formats) and trims
-// surrounding whitespace.
+// scrub is the shared entry cleaning for the typed normalizers. It removes
+// zero-width/format characters and non-whitespace control characters
+// everywhere (they are never valid inside these formats), and trims surrounding
+// whitespace. Whitespace is treated uniformly as grouping: tabs and newlines
+// are not deleted from the interior any more than spaces are, so a type that
+// wants to drop internal whitespace does so explicitly with Remove(s, Spaces).
 func scrub(s string) string {
-	return strings.TrimSpace(Remove(s, Controls|Invisible))
+	cleaned := strings.Map(func(r rune) rune {
+		if isInvisible(r) || (unicode.IsControl(r) && !unicode.IsSpace(r)) {
+			return -1
+		}
+		return r
+	}, s)
+	return strings.TrimSpace(cleaned)
 }
