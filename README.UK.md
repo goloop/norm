@@ -28,6 +28,7 @@ go get github.com/goloop/norm
 | Функція | Нормалізація |
 |---------|--------------|
 | `Email` | trim, lowercase домену (локальну частину збережено), ремонт внутрішніх пробілів |
+| `EmailFold` | `Email`, тоді lowercase усієї адреси (регістро-незалежний ключ-ідентичність) |
 | `URL` | trim, lowercase лише схеми й хоста (схема не вигадується) |
 | `UUID` | trim, зняти `{}` і `urn:uuid:`, lowercase |
 | `MAC` | перегрупувати в lowercase colon-пари (приймає `:`, `-`, `.`, без) |
@@ -61,8 +62,14 @@ norm.Trim(s, norm.Spaces|norm.Controls) // прибрати групи з обо
 norm.Remove(s, norm.Invisible)          // прибрати групу всюди
 norm.Keep(s, norm.Letters|norm.Digits)  // лишити тільки ці групи
 norm.CollapseSpace(s)                   // серії пробілів -> один пробіл
+norm.Clean(s)                           // прибрати невидимі/контрол, стиснути пробіли, тримити
 norm.Lower(s), norm.Upper(s)            // Unicode-регістр
 ```
+
+`Clean` - очищення в один виклик для вільного текстового поля (ім'я, заголовок,
+коментар): прибирає невидимі й non-space контрол-символи, стискає кожну серію
+пробілів до одного й тримить краї, тож вставлений текст не занесе в сховище
+zero-width байти, приховані переноси рядків чи рвану розбивку.
 
 Групи: `Spaces`, `Controls`, `Invisible` (zero-width / формат-символи, BOM,
 м'який дефіс, variation selectors), `Punct`, `Symbols`, `Letters`, `Digits`

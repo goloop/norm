@@ -28,6 +28,7 @@ is returned even when invalid, so a UI can suggest "did you mean X?".
 | Function | Normalization |
 |----------|---------------|
 | `Email` | trim, lowercase domain (local part preserved), repair internal spaces |
+| `EmailFold` | `Email`, then lowercase the whole address (case-insensitive identity key) |
 | `URL` | trim, lowercase scheme and host only (no scheme is invented) |
 | `UUID` | trim, strip `{}` and `urn:uuid:`, lowercase |
 | `MAC` | regroup to lowercase colon pairs (accepts `:`, `-`, `.`, none) |
@@ -61,8 +62,14 @@ norm.Trim(s, norm.Spaces|norm.Controls) // remove groups from both ends
 norm.Remove(s, norm.Invisible)          // remove a group everywhere
 norm.Keep(s, norm.Letters|norm.Digits)  // keep only these groups
 norm.CollapseSpace(s)                   // runs of whitespace -> one space
+norm.Clean(s)                           // strip invisible/control, collapse space, trim
 norm.Lower(s), norm.Upper(s)            // Unicode case
 ```
+
+`Clean` is the one-call cleanup for a free-text field (a name, title or
+comment): it removes invisible and non-space control characters, collapses every
+whitespace run to a single space and trims the ends, so pasted text cannot carry
+zero-width bytes, hidden line breaks or ragged spacing into storage.
 
 Groups: `Spaces`, `Controls`, `Invisible` (zero-width / format characters, BOM,
 soft hyphen, variation selectors), `Punct`, `Symbols`, `Letters`, `Digits`
