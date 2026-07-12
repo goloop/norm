@@ -44,6 +44,12 @@ func MAC(s string) (string, bool)
 func IBAN(s string) (string, bool)
 func BankCard(s string, kinds ...is.CardKind) (string, bool)
 func E164(s string) (string, bool)
+func Phone(s string) (string, bool)
+func IMSI(s string) (string, bool)
+func Bin(s string) (string, bool)
+func Decimal(s string) (string, bool)
+func Float(s string) (string, bool)
+func RGBColor(s string) (string, bool)
 func IP(s string) (string, bool)
 func IPv4(s string) (string, bool)
 func IPv6(s string) (string, bool)
@@ -78,8 +84,15 @@ func SHA512(s string) (string, bool)
   `is.CardKind`. **Security:** the returned value is a full card number (PAN);
   do not log or store it unnecessarily, and a Luhn-valid number is not proof of
   a real or intended card.
-- **E164**: remove spaces, dashes, parentheses and dots. Non-magical: a national
-  number without a leading `+` stays invalid.
+- **E164 / Phone**: remove spaces, parentheses, dashes and dots. Non-magical: a
+  national number without a leading `+` stays invalid.
+- **IMSI**: remove spaces and dashes (an IMSI is 15 digits).
+- **Bin**: remove whitespace and lowercase (so an uppercase `0B` prefix becomes
+  `0b`).
+- **Decimal**: remove whitespace (decimal digits are sometimes space-grouped).
+- **Float**: scrub and trim only; the sign and decimal point are grammar, so no
+  interior characters are removed (which could silently change the value).
+- **RGBColor**: lowercase the `rgb` keyword; the numbers are untouched.
 - **IP / IPv4 / IPv6**: parse and return the canonical text via `net/netip`
   (IPv6 is lowercased and compressed). IPv4/IPv6 also enforce the family.
 - **Domain / Hostname**: trim and lowercase (case-insensitive). No IDN/punycode

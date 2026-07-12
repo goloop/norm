@@ -43,6 +43,12 @@ func MAC(s string) (string, bool)
 func IBAN(s string) (string, bool)
 func BankCard(s string, kinds ...is.CardKind) (string, bool)
 func E164(s string) (string, bool)
+func Phone(s string) (string, bool)
+func IMSI(s string) (string, bool)
+func Bin(s string) (string, bool)
+func Decimal(s string) (string, bool)
+func Float(s string) (string, bool)
+func RGBColor(s string) (string, bool)
 func IP(s string) (string, bool)
 func IPv4(s string) (string, bool)
 func IPv6(s string) (string, bool)
@@ -75,8 +81,14 @@ func SHA512(s string) (string, bool)
   `is.CardKind`. **Безпека:** повернуте значення - повний номер картки (PAN); не
   логуйте й не зберігайте його без потреби, а Luhn-валідність не є доказом
   справжньої чи бажаної картки.
-- **E164**: прибрати пробіли, дефіси, дужки й крапки. Без магії: національний
-  номер без провідного `+` лишається невалідним.
+- **E164 / Phone**: прибрати пробіли, дужки, дефіси й крапки. Без магії:
+  національний номер без провідного `+` лишається невалідним.
+- **IMSI**: прибрати пробіли й дефіси (IMSI - це 15 цифр).
+- **Bin**: прибрати пробіли й lowercase (щоб `0B` став `0b`).
+- **Decimal**: прибрати пробіли (десяткові цифри інколи згруповано пробілами).
+- **Float**: лише scrub і trim; знак і крапка - граматика, тож усередині нічого
+  не прибираємо (це могло б тихо змінити значення).
+- **RGBColor**: lowercase ключового слова `rgb`; числа недоторкані.
 - **IP / IPv4 / IPv6**: розібрати й повернути канонічний текст через `net/netip`
   (IPv6 - lowercase і стиснений). IPv4/IPv6 ще й вимагають родину.
 - **Domain / Hostname**: trim і lowercase (регістро-незалежні). Без IDN/punycode.

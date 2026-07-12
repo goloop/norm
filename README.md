@@ -33,12 +33,17 @@ is returned even when invalid, so a UI can suggest "did you mean X?".
 | `MAC` | regroup to lowercase colon pairs (accepts `:`, `-`, `.`, none) |
 | `IBAN` | remove spaces, uppercase, strict checksum |
 | `BankCard` | remove spaces and dashes, Luhn (and optional kinds) |
-| `E164` | remove spaces, dashes, parentheses, dots (no country code invented) |
+| `E164`, `Phone` | remove spaces, parentheses, dashes, dots (no country code invented) |
+| `IMSI` | remove spaces and dashes |
 | `IP`, `IPv4`, `IPv6` | canonical form (compressed, lowercase IPv6) |
 | `Domain`, `Hostname` | trim, lowercase |
 | `Base64`, `Base64URL` | remove whitespace (unwrap) |
 | `JWT` | trim, scrub |
 | `HexColor` | trim, lowercase (no `#` invented) |
+| `RGBColor` | lowercase the `rgb` keyword |
+| `Bin` | remove whitespace, lowercase `0b` prefix |
+| `Decimal` | remove whitespace (ungroup digits) |
+| `Float` | trim and scrub only (grammar is not repaired) |
 | `Hex`, `MD5`, `SHA1`, `SHA256`, `SHA512` | trim, lowercase |
 
 Every value is first scrubbed of control and invisible characters (a zero-width
