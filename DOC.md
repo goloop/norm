@@ -172,3 +172,7 @@ identity. The case predicates map to the plain transforms `norm.Lower` and
 `norm` cleans and validates known types and provides character-group tools. It
 does not parse structured documents, transliterate (see `goloop/t13n`), slugify
 (see `goloop/slug`) or change letter case beyond `Lower`/`Upper`.
+
+## Release v1.0.2
+
+Normalize IP addresses with a single parse.
